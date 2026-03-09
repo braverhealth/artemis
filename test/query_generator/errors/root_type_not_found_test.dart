@@ -1,8 +1,9 @@
 import 'package:artemis/builder.dart';
 import 'package:artemis/generator/errors.dart';
 import 'package:build/build.dart';
-import 'package:build_test/build_test.dart';
 import 'package:test/test.dart';
+
+import '../../helpers.dart';
 
 void main() {
   group('On errors', () {
@@ -20,16 +21,15 @@ void main() {
 
       anotherBuilder.onBuild = expectAsync1((_) {}, count: 0);
 
-      expect(
-        () => testBuilder(
-          anotherBuilder,
-          {
-            'a|lib/api.schema.graphql': '',
-            'a|lib/some.query.graphql': 'query { a }',
-          },
-          onLog: print,
+      await expectBuilderLogsError(
+        builder: anotherBuilder,
+        sourceAssets: {
+          'a|lib/api.schema.graphql': '',
+          'a|lib/some.query.graphql': 'query { a }',
+        },
+        messageMatcher: contains(
+          const MissingRootTypeException('Query').toString().trim(),
         ),
-        throwsA(predicate((e) => e is MissingRootTypeException)),
       );
     });
   });

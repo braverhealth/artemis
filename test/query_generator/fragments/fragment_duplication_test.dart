@@ -231,52 +231,6 @@ mixin PokemonPartsMixin {
 }
 
 @JsonSerializable(explicitToJson: true)
-class PokemonData$Query$Pokemon extends JsonSerializable
-    with EquatableMixin, PokemonMixin, PokemonPartsMixin {
-  PokemonData$Query$Pokemon();
-
-  factory PokemonData$Query$Pokemon.fromJson(Map<String, dynamic> json) =>
-      _$PokemonData$Query$PokemonFromJson(json);
-
-  @override
-  List<Object?> get props => [id, evolution, number, name];
-
-  @override
-  Map<String, dynamic> toJson() => _$PokemonData$Query$PokemonToJson(this);
-}
-
-@JsonSerializable(explicitToJson: true)
-class PokemonData$Query extends JsonSerializable with EquatableMixin {
-  PokemonData$Query();
-
-  factory PokemonData$Query.fromJson(Map<String, dynamic> json) =>
-      _$PokemonData$QueryFromJson(json);
-
-  PokemonData$Query$Pokemon? pokemon;
-
-  @override
-  List<Object?> get props => [pokemon];
-
-  @override
-  Map<String, dynamic> toJson() => _$PokemonData$QueryToJson(this);
-}
-
-@JsonSerializable(explicitToJson: true)
-class PokemonMixin$Evolution extends JsonSerializable
-    with EquatableMixin, PokemonNameMixin {
-  PokemonMixin$Evolution();
-
-  factory PokemonMixin$Evolution.fromJson(Map<String, dynamic> json) =>
-      _$PokemonMixin$EvolutionFromJson(json);
-
-  @override
-  List<Object?> get props => [name];
-
-  @override
-  Map<String, dynamic> toJson() => _$PokemonMixin$EvolutionToJson(this);
-}
-
-@JsonSerializable(explicitToJson: true)
 class AllPokemonsData$Query$AllPokemons extends JsonSerializable
     with EquatableMixin, PokemonMixin, PokemonPartsMixin {
   AllPokemonsData$Query$AllPokemons();
@@ -307,5 +261,51 @@ class AllPokemonsData$Query extends JsonSerializable with EquatableMixin {
 
   @override
   Map<String, dynamic> toJson() => _$AllPokemonsData$QueryToJson(this);
+}
+
+@JsonSerializable(explicitToJson: true)
+class PokemonMixin$Evolution extends JsonSerializable
+    with EquatableMixin, PokemonNameMixin {
+  PokemonMixin$Evolution();
+
+  factory PokemonMixin$Evolution.fromJson(Map<String, dynamic> json) =>
+      _$PokemonMixin$EvolutionFromJson(json);
+
+  @override
+  List<Object?> get props => [name];
+
+  @override
+  Map<String, dynamic> toJson() => _$PokemonMixin$EvolutionToJson(this);
+}
+
+@JsonSerializable(explicitToJson: true)
+class PokemonData$Query$Pokemon extends JsonSerializable
+    with EquatableMixin, PokemonMixin, PokemonPartsMixin {
+  PokemonData$Query$Pokemon();
+
+  factory PokemonData$Query$Pokemon.fromJson(Map<String, dynamic> json) =>
+      _$PokemonData$Query$PokemonFromJson(json);
+
+  @override
+  List<Object?> get props => [id, evolution, number, name];
+
+  @override
+  Map<String, dynamic> toJson() => _$PokemonData$Query$PokemonToJson(this);
+}
+
+@JsonSerializable(explicitToJson: true)
+class PokemonData$Query extends JsonSerializable with EquatableMixin {
+  PokemonData$Query();
+
+  factory PokemonData$Query.fromJson(Map<String, dynamic> json) =>
+      _$PokemonData$QueryFromJson(json);
+
+  PokemonData$Query$Pokemon? pokemon;
+
+  @override
+  List<Object?> get props => [pokemon];
+
+  @override
+  Map<String, dynamic> toJson() => _$PokemonData$QueryToJson(this);
 }
 ''';

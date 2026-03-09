@@ -1,8 +1,9 @@
 import 'package:artemis/builder.dart';
 import 'package:artemis/generator/errors.dart';
 import 'package:build/build.dart';
-import 'package:build_test/build_test.dart';
 import 'package:test/test.dart';
+
+import '../../helpers.dart';
 
 void main() {
   group('On errors', () {
@@ -20,16 +21,17 @@ void main() {
 
       anotherBuilder.onBuild = expectAsync1((_) {}, count: 0);
 
-      expect(
-          () => testBuilder(
-              anotherBuilder,
-              {
-                'a|api.schema.json': '',
-                'a|api.schema.grqphql': '',
-                'a|some_query.query.graphql': 'query some_query { s }',
-              },
-              onLog: print),
-          throwsA(predicate((e) => e is QueryGlobsSchemaException)));
+      await expectBuilderLogsError(
+        builder: anotherBuilder,
+        sourceAssets: {
+          'a|api.schema.json': '',
+          'a|api.schema.grqphql': '',
+          'a|some_query.query.graphql': 'query some_query { s }',
+        },
+        messageMatcher: contains(
+          const QueryGlobsSchemaException().toString().trim(),
+        ),
+      );
     });
 
     test("When user hasn't configured an output", () async {
@@ -63,21 +65,19 @@ void main() {
         ],
       }));
 
-      try {
-        await testBuilder(
-            anotherBuilder,
-            {
-              'a|api.schema.graphql': ''' ''',
-              'a|queries/query.graphql': ''' ''',
-              'a|fragment.frag': ''' '''
-            },
-            onLog: print);
-      } on MissingBuildConfigurationException catch (e) {
-        expect(e.name, 'schema_map => queries_glob');
-        return;
-      }
-
-      throw Exception('Expected MissingBuildConfigurationException');
+      await expectBuilderLogsError(
+        builder: anotherBuilder,
+        sourceAssets: {
+          'a|api.schema.graphql': ''' ''',
+          'a|queries/query.graphql': ''' ''',
+          'a|fragment.frag': ''' ''',
+        },
+        messageMatcher: contains(
+          MissingBuildConfigurationException('schema_map => queries_glob')
+              .toString()
+              .trim(),
+        ),
+      );
     });
 
     test('When user fragments_glob return empty file', () async {
@@ -92,19 +92,14 @@ void main() {
         ],
       }));
 
-      try {
-        await testBuilder(
-            anotherBuilder,
-            {
-              'a|api.schema.graphql': ''' ''',
-              'a|queries/query.graphql': ''' ''',
-            },
-            onLog: print);
-      } on MissingFilesException catch (e) {
-        expect(e.globPattern, '**.frag');
-        return;
-      }
-      throw Exception('Expected MissingFilesException');
+      await expectBuilderLogsError(
+        builder: anotherBuilder,
+        sourceAssets: {
+          'a|api.schema.graphql': ''' ''',
+          'a|queries/query.graphql': ''' ''',
+        },
+        messageMatcher: contains(MissingFilesException('**.frag').toString()),
+      );
     });
 
     test('When user fragments_glob at schema level return empty file',
@@ -120,68 +115,55 @@ void main() {
         ],
       }));
 
-      try {
-        await testBuilder(
-            anotherBuilder,
-            {
-              'a|api.schema.graphql': ''' ''',
-              'a|queries/query.graphql': ''' ''',
-            },
-            onLog: print);
-      } on MissingFilesException catch (e) {
-        expect(e.globPattern, '**.schema');
-        return;
-      }
-      throw Exception('Expected MissingFilesException');
+      await expectBuilderLogsError(
+        builder: anotherBuilder,
+        sourceAssets: {
+          'a|api.schema.graphql': ''' ''',
+          'a|queries/query.graphql': ''' ''',
+        },
+        messageMatcher: contains(MissingFilesException('**.schema').toString()),
+      );
     });
 
     test('When schema_mapping is empty', () async {
-      try {
-        final anotherBuilder = graphQLQueryBuilder(BuilderOptions({
+      expect(
+        () => graphQLQueryBuilder(BuilderOptions({
           'generate_helpers': false,
           'schema_mapping': [],
-        }));
-
-        await testBuilder(
-            anotherBuilder,
-            {
-              'a|api.schema.graphql': ''' ''',
-              'a|queries/query.graphql': ''' ''',
-            },
-            onLog: print);
-      } on MissingBuildConfigurationException catch (e) {
-        expect(e.name, 'schema_mapping');
-        return;
-      }
-
-      throw Exception('Expected MissingBuildConfigurationException');
+        })),
+        throwsA(
+          predicate(
+            (e) =>
+                e is MissingBuildConfigurationException &&
+                e.name == 'schema_mapping',
+          ),
+        ),
+      );
     });
 
     test('When schema_mapping => schema is not defined', () async {
-      try {
-        final anotherBuilder = graphQLQueryBuilder(BuilderOptions({
-          'generate_helpers': false,
-          'schema_mapping': [
-            {
-              'queries_glob': '**.graphql',
-              'output': 'lib/some_query.dart',
-            }
-          ],
-        }));
+      final anotherBuilder = graphQLQueryBuilder(BuilderOptions({
+        'generate_helpers': false,
+        'schema_mapping': [
+          {
+            'queries_glob': '**.graphql',
+            'output': 'lib/some_query.dart',
+          }
+        ],
+      }));
 
-        await testBuilder(
-            anotherBuilder,
-            {
-              'a|api.schema.graphql': ''' ''',
-              'a|queries/query.graphql': ''' ''',
-            },
-            onLog: print);
-      } on MissingBuildConfigurationException catch (e) {
-        expect(e.name, 'schema_map => schema');
-        return;
-      }
-
-      throw Exception('Expected MissingBuildConfigurationException');
+      await expectBuilderLogsError(
+        builder: anotherBuilder,
+        sourceAssets: {
+          'a|api.schema.graphql': ''' ''',
+          'a|queries/query.graphql': ''' ''',
+        },
+        messageMatcher: contains(
+          MissingBuildConfigurationException('schema_map => schema')
+              .toString()
+              .trim(),
+        ),
+      );
     });
 
     // test('When fragments_glob meets local fragments', () async {
@@ -249,20 +231,17 @@ void main() {
 
       anotherBuilder.onBuild = expectAsync1((_) {}, count: 0);
 
-      expect(
-          () => testBuilder(
-              anotherBuilder,
-              {
-                'a|api.schema.json': '',
-                'a|api.schema.grqphql': '',
-                'a|some_query.query.graphql': 'query some_query { s }',
-              },
-              onLog: print),
-          throwsA(predicate(
-            (e) =>
-                e is MissingFilesException &&
-                e.globPattern == 'non_existent_api.schema.graphql',
-          )));
+      await expectBuilderLogsError(
+        builder: anotherBuilder,
+        sourceAssets: {
+          'a|api.schema.json': '',
+          'a|api.schema.grqphql': '',
+          'a|some_query.query.graphql': 'query some_query { s }',
+        },
+        messageMatcher: contains(
+          MissingFilesException('non_existent_api.schema.graphql').toString(),
+        ),
+      );
     });
 
     test('When the queries_glob files are not found', () async {
@@ -279,18 +258,16 @@ void main() {
 
       anotherBuilder.onBuild = expectAsync1((_) {}, count: 0);
 
-      expect(
-          () => testBuilder(
-              anotherBuilder,
-              {
-                'a|api.schema.grqphql': '',
-                'a|some_query.query.graphql': 'query some_query { s }',
-              },
-              onLog: print),
-          throwsA(predicate(
-            (e) =>
-                e is MissingFilesException && e.globPattern == 'lib/**.graphql',
-          )));
+      await expectBuilderLogsError(
+        builder: anotherBuilder,
+        sourceAssets: {
+          'a|api.schema.grqphql': '',
+          'a|some_query.query.graphql': 'query some_query { s }',
+        },
+        messageMatcher: contains(
+          MissingFilesException('lib/**.graphql').toString(),
+        ),
+      );
     });
   });
 
@@ -309,11 +286,10 @@ void main() {
 
     anotherBuilder.onBuild = expectAsync1((_) {}, count: 0);
 
-    expect(
-        () => testBuilder(
-            anotherBuilder,
-            {
-              'a|api.schema.graphql': '''
+    await expectBuilderLogsError(
+      builder: anotherBuilder,
+      sourceAssets: {
+        'a|api.schema.graphql': '''
                 schema {
                   query: Query
                 }
@@ -327,7 +303,7 @@ void main() {
                   name: String!
                 }
                 ''',
-              'a|queries/query.graphql': '''
+        'a|queries/query.graphql': '''
                   {
                       pokemon {
                         ...Pokemon
@@ -338,7 +314,7 @@ void main() {
                     id
                   }
                 ''',
-              'a|queries/anotherQuery.graphql': '''
+        'a|queries/anotherQuery.graphql': '''
                   {
                       pokemon {
                         ...Pokemon
@@ -350,9 +326,9 @@ void main() {
                     name
                   }
                 ''',
-            },
-            onLog: print),
-        throwsA(predicate((e) => e is DuplicatedClassesException)));
+      },
+      messageMatcher: contains('Two classes were generated with the same name'),
+    );
   });
 
   test('When the query globs schema location', () async {
@@ -369,16 +345,17 @@ void main() {
 
     anotherBuilder.onBuild = expectAsync1((_) {}, count: 0);
 
-    expect(
-        () => testBuilder(
-            anotherBuilder,
-            {
-              'a|api.schema.json': '',
-              'a|api.schema.grqphql': '',
-              'a|some_query.query.graphql': 'query some_query { s }',
-            },
-            onLog: print),
-        throwsA(predicate((e) => e is QueryGlobsSchemaException)));
+    await expectBuilderLogsError(
+      builder: anotherBuilder,
+      sourceAssets: {
+        'a|api.schema.json': '',
+        'a|api.schema.grqphql': '',
+        'a|some_query.query.graphql': 'query some_query { s }',
+      },
+      messageMatcher: contains(
+        const QueryGlobsSchemaException().toString().trim(),
+      ),
+    );
   });
 
   test('When the query globs output location', () async {
@@ -395,16 +372,17 @@ void main() {
 
     anotherBuilder.onBuild = expectAsync1((_) {}, count: 0);
 
-    expect(
-        () => testBuilder(
-            anotherBuilder,
-            {
-              'a|api.schema.json': '',
-              'a|api.schema.grqphql': '',
-              'a|some_query.query.graphql': 'query some_query { s }',
-            },
-            onLog: print),
-        throwsA(predicate((e) => e is QueryGlobsOutputException)));
+    await expectBuilderLogsError(
+      builder: anotherBuilder,
+      sourceAssets: {
+        'a|api.schema.json': '',
+        'a|api.schema.grqphql': '',
+        'a|some_query.query.graphql': 'query some_query { s }',
+      },
+      messageMatcher: contains(
+        const QueryGlobsOutputException().toString().trim(),
+      ),
+    );
   });
 
   test('When scalar_mapping does not define a custom scalar', () async {
@@ -421,22 +399,23 @@ void main() {
 
     anotherBuilder.onBuild = expectAsync1((_) {}, count: 0);
 
-    expect(
-        () => testBuilder(
-            anotherBuilder,
-            {
-              'a|api.schema.graphql': r'''
+    await expectBuilderLogsError(
+      builder: anotherBuilder,
+      sourceAssets: {
+        'a|api.schema.graphql': r'''
 scalar DateTime
 
 type Query {
   s: DateTime
 }
 ''',
-              'a|lib/queries/some_query.graphql': 'query some_query { s }',
-            },
-            onLog: print),
-        throwsA(predicate((e) =>
-            e is MissingScalarConfigurationException &&
-            e.scalarName == 'DateTime')));
+        'a|lib/queries/some_query.graphql': 'query some_query { s }',
+      },
+      messageMatcher: contains(
+        const MissingScalarConfigurationException('DateTime')
+            .toString()
+            .trim(),
+      ),
+    );
   });
 }

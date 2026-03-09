@@ -1,8 +1,9 @@
 import 'package:artemis/builder.dart';
 import 'package:artemis/generator/errors.dart';
 import 'package:build/build.dart';
-import 'package:build_test/build_test.dart';
 import 'package:test/test.dart';
+
+import '../../helpers.dart';
 
 void main() {
   group('On errors', () {
@@ -18,24 +19,23 @@ void main() {
         ],
       }));
 
-      expect(
-        () => testBuilder(
-          anotherBuilder,
-          {
-            'a|api.schema.graphql': '''
+      await expectBuilderLogsError(
+        builder: anotherBuilder,
+        sourceAssets: {
+          'a|api.schema.graphql': '''
                 type Query {
                   a: String!
                 }
                 ''',
-            'a|lib/queries/some_query.graphql':
-                'query { ...nonExistentFragment }',
-          },
-          onLog: print,
+          'a|lib/queries/some_query.graphql':
+              'query { ...nonExistentFragment }',
+        },
+        messageMatcher: contains(
+          const MissingFragmentException(
+            'NonExistentFragmentMixin',
+            r'SomeQuery$Query',
+          ).toString().trim(),
         ),
-        throwsA(predicate((e) =>
-            e is MissingFragmentException &&
-            e.fragmentName == 'NonExistentFragmentMixin' &&
-            e.className == r'SomeQuery$Query')),
       );
     });
   });

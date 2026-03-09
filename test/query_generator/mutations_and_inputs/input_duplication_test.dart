@@ -31,7 +31,7 @@ void main() {
         libraryDefinition: libraryDefinition,
         generatedFile: generatedFile,
         sourceAssetsMap: {
-          'a|queries/another_query.graphql': anotherQuery,
+          'a|queries/z_another_query.graphql': anotherQuery,
         },
         generateHelpers: true,
       ),

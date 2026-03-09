@@ -5,6 +5,8 @@ import 'package:build/build.dart';
 import 'package:build_test/build_test.dart';
 import 'package:test/test.dart';
 
+import '../../helpers.dart';
+
 void main() {
   group('Multiple schema mapping', () {
     test(
@@ -32,11 +34,17 @@ void main() {
         anotherBuilder.onBuild = expectAsync1((definition) {
           log.fine(definition);
           if (count == 0) {
-            expect(definition, libraryDefinitionA);
+            expect(
+              normalizeLibraryDefinition(definition),
+              normalizeLibraryDefinition(libraryDefinitionA),
+            );
           }
 
           if (count == 1) {
-            expect(definition, libraryDefinitionB);
+            expect(
+              normalizeLibraryDefinition(definition),
+              normalizeLibraryDefinition(libraryDefinitionB),
+            );
           }
 
           count++;
@@ -51,8 +59,8 @@ void main() {
             'a|queries/queryB.graphql': queryB,
           },
           outputs: {
-            'a|lib/outputA.graphql.dart': generatedFileA,
-            'a|lib/outputB.graphql.dart': generatedFileB,
+            'a|lib/outputA.graphql.dart': normalizeGeneratedDart(generatedFileA),
+            'a|lib/outputB.graphql.dart': normalizeGeneratedDart(generatedFileB),
           },
           onLog: print,
         );

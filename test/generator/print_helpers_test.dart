@@ -4,6 +4,8 @@ import 'package:artemis/generator/print_helpers.dart';
 import 'package:gql/language.dart';
 import 'package:test/test.dart';
 
+import '../helpers.dart';
+
 void main() {
   group('On printCustomEnum', () {
     test('It will throw if name is empty.', () {
@@ -42,7 +44,7 @@ void main() {
 
       final str = specToString(enumDefinitionToSpec(definition));
 
-      expect(str, '''enum Name {
+      expectDartCode(str, '''enum Name {
   @JsonValue('Option')
   option,
   @JsonValue('anotherOption')
@@ -73,7 +75,7 @@ void main() {
 
       final str = specToString(enumDefinitionToSpec(definition));
 
-      expect(str, '''enum Name {
+      expectDartCode(str, '''enum Name {
   @JsonValue('Option')
   option,
   @JsonValue('AnotherOption')
@@ -110,7 +112,7 @@ void main() {
 
       final str = specToString(fragmentClassDefinitionToSpec(definition));
 
-      expect(str, '''mixin FragmentMixin {
+      expectDartCode(str, '''mixin FragmentMixin {
   Type? name;
   @override
   Type? name;
@@ -141,7 +143,7 @@ void main() {
 
       final str = specToString(classDefinitionToSpec(definition, [], []));
 
-      expect(str, '''@JsonSerializable(explicitToJson: true)
+      expectDartCode(str, '''@JsonSerializable(explicitToJson: true)
 class AClass extends JsonSerializable with EquatableMixin {
   AClass();
 
@@ -164,7 +166,7 @@ class AClass extends JsonSerializable with EquatableMixin {
 
       final str = specToString(classDefinitionToSpec(definition, [], []));
 
-      expect(str, '''@JsonSerializable(explicitToJson: true)
+      expectDartCode(str, '''@JsonSerializable(explicitToJson: true)
 class AClass extends AnotherClass with EquatableMixin {
   AClass();
 
@@ -194,7 +196,7 @@ class AClass extends AnotherClass with EquatableMixin {
 
       final str = specToString(classDefinitionToSpec(definition, [], []));
 
-      expect(str, r'''@JsonSerializable(explicitToJson: true)
+      expectDartCode(str, r'''@JsonSerializable(explicitToJson: true)
 class AClass extends JsonSerializable with EquatableMixin {
   AClass();
 
@@ -240,7 +242,7 @@ class AClass extends JsonSerializable with EquatableMixin {
 
       final str = specToString(classDefinitionToSpec(definition, [], []));
 
-      expect(str, '''@JsonSerializable(explicitToJson: true)
+      expectDartCode(str, '''@JsonSerializable(explicitToJson: true)
 class AClass extends JsonSerializable with EquatableMixin {
   AClass();
 
@@ -283,7 +285,7 @@ class AClass extends JsonSerializable with EquatableMixin {
 
       final str = specToString(classDefinitionToSpec(definition, [], []));
 
-      expect(str, '''@JsonSerializable(explicitToJson: true)
+      expectDartCode(str, '''@JsonSerializable(explicitToJson: true)
 class AClass extends JsonSerializable with EquatableMixin {
   AClass();
 
@@ -328,7 +330,7 @@ class AClass extends JsonSerializable with EquatableMixin {
             ])
       ], []));
 
-      expect(str, '''@JsonSerializable(explicitToJson: true)
+      expectDartCode(str, '''@JsonSerializable(explicitToJson: true)
 class AClass extends JsonSerializable with EquatableMixin, FragmentMixin {
   AClass();
 
@@ -360,7 +362,7 @@ class AClass extends JsonSerializable with EquatableMixin, FragmentMixin {
 
       final str = specToString(classDefinitionToSpec(definition, [], []));
 
-      expect(str, '''@JsonSerializable(explicitToJson: true)
+      expectDartCode(str, '''@JsonSerializable(explicitToJson: true)
 class AClass extends JsonSerializable with EquatableMixin {
   AClass({
     this.name,
@@ -429,7 +431,7 @@ class AClass extends JsonSerializable with EquatableMixin {
       final ignoreForFile = <String>[];
       writeLibraryDefinitionToBuffer(buffer, ignoreForFile, definition);
 
-      expect(buffer.toString(), '''// GENERATED CODE - DO NOT MODIFY BY HAND
+      expectDartCode(buffer.toString(), '''// GENERATED CODE - DO NOT MODIFY BY HAND
 
 import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
@@ -446,7 +448,7 @@ part 'test_query.graphql.g.dart';
 
       writeLibraryDefinitionToBuffer(buffer, ignoreForFile, definition);
 
-      expect(buffer.toString(), '''// GENERATED CODE - DO NOT MODIFY BY HAND
+      expectDartCode(buffer.toString(), '''// GENERATED CODE - DO NOT MODIFY BY HAND
 
 import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
@@ -473,7 +475,7 @@ part 'test_query.graphql.g.dart';
 
       writeLibraryDefinitionToBuffer(buffer, ignoreForFile, definition);
 
-      expect(buffer.toString(), '''// GENERATED CODE - DO NOT MODIFY BY HAND
+      expectDartCode(buffer.toString(), '''// GENERATED CODE - DO NOT MODIFY BY HAND
 
 import 'package:artemis/artemis.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -530,7 +532,7 @@ class TestQueryQuery extends GraphQLQuery<TestQuery, JsonSerializable> {
 
       writeLibraryDefinitionToBuffer(buffer, ignoreForFile, definition);
 
-      expect(buffer.toString(), '''// GENERATED CODE - DO NOT MODIFY BY HAND
+      expectDartCode(buffer.toString(), '''// GENERATED CODE - DO NOT MODIFY BY HAND
 
 import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
@@ -570,7 +572,7 @@ final TEST_QUERY_QUERY_DOCUMENT = DocumentNode(definitions: [
 
       writeLibraryDefinitionToBuffer(buffer, ignoreForFile, definition);
 
-      expect(buffer.toString(), r'''// GENERATED CODE - DO NOT MODIFY BY HAND
+      expectDartCode(buffer.toString(), r'''// GENERATED CODE - DO NOT MODIFY BY HAND
 
 import 'package:artemis/artemis.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -641,7 +643,7 @@ class TestQueryQuery extends GraphQLQuery<TestQuery, TestQueryArguments> {
 
       final str = specToString(generateArgumentClassSpec(definition));
 
-      expect(str, '''@JsonSerializable(explicitToJson: true)
+      expectDartCode(str, '''@JsonSerializable(explicitToJson: true)
 class TestQueryArguments extends JsonSerializable with EquatableMixin {
   TestQueryArguments({this.name});
 
@@ -676,7 +678,7 @@ class TestQueryArguments extends JsonSerializable with EquatableMixin {
       final str = specToString(generateQuerySpec(definition)) +
           specToString(generateQueryClassSpec(definition));
 
-      expect(str,
+      expectDartCode(str,
           r'''final TEST_QUERY_QUERY_DOCUMENT_OPERATION_NAME = 'test_query';
 final TEST_QUERY_QUERY_DOCUMENT = DocumentNode(definitions: [
   OperationDefinitionNode(
@@ -730,7 +732,7 @@ class TestQueryQuery extends GraphQLQuery<TestQuery, TestQueryArguments> {
 
       writeLibraryDefinitionToBuffer(buffer, ignoreForFile, definition);
 
-      expect(buffer.toString(), '''// GENERATED CODE - DO NOT MODIFY BY HAND
+      expectDartCode(buffer.toString(), '''// GENERATED CODE - DO NOT MODIFY BY HAND
 
 import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
@@ -765,7 +767,7 @@ enum SomeEnum {
 
     writeLibraryDefinitionToBuffer(buffer, ignoreForFile, definition);
 
-    expect(buffer.toString(), '''// GENERATED CODE - DO NOT MODIFY BY HAND
+    expectDartCode(buffer.toString(), '''// GENERATED CODE - DO NOT MODIFY BY HAND
 
 import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
@@ -781,7 +783,7 @@ part 'test_query.graphql.g.dart';
 
     writeLibraryDefinitionToBuffer(buffer, ignoreForFile, definition);
 
-    expect(buffer.toString(), '''// GENERATED CODE - DO NOT MODIFY BY HAND
+    expectDartCode(buffer.toString(), '''// GENERATED CODE - DO NOT MODIFY BY HAND
 
 import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
@@ -798,7 +800,7 @@ part 'test_query.graphql.g.dart';
 
     writeLibraryDefinitionToBuffer(buffer, ignoreForFile, definition);
 
-    expect(buffer.toString(), '''// GENERATED CODE - DO NOT MODIFY BY HAND
+    expectDartCode(buffer.toString(), '''// GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: my_rule_1, my_rule_2
 
 import 'package:json_annotation/json_annotation.dart';
