@@ -57,7 +57,7 @@ class ArtemisClient {
     final response = await _link.request(request).first;
 
     return GraphQLResponse<T>(
-      data: response.data == null ? null : query.parse(response.data ?? {}),
+      data: _tryParse(query, response),
       errors: response.errors,
       context: response.context,
     );
@@ -78,10 +78,27 @@ class ArtemisClient {
     );
 
     return _link.request(request).map((response) => GraphQLResponse<T>(
-          data: response.data == null ? null : query.parse(response.data ?? {}),
+          data: _tryParse(query, response),
           errors: response.errors,
           context: response.context,
         ));
+  }
+
+  /// Parse [response] using [query]. If parsing throws while the server
+  /// returned a non-empty [Response.errors] list, the failure is treated as a
+  /// partial response (non-nullable typed model can't be built from the
+  /// returned shape) and `null` is returned. Otherwise the error rethrows.
+  static T? _tryParse<T, U extends JsonSerializable>(
+    GraphQLQuery<T, U> query,
+    Response response,
+  ) {
+    if (response.data == null) return null;
+    try {
+      return query.parse(response.data ?? {});
+    } catch (_) {
+      if (response.errors != null && response.errors!.isNotEmpty) return null;
+      rethrow;
+    }
   }
 
   /// Close the inline [http.Client].
